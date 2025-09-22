@@ -1,0 +1,21 @@
+meta {
+  name: Delete Token
+  type: http
+  seq: 7
+}
+
+delete {
+  url: {{base_url}}/tokens/1
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+tests {
+  test("Status is 200 or 404", function() {
+    expect([200, 404]).to.include(res.getStatus());
+  });
+}

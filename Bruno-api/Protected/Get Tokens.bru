@@ -1,0 +1,26 @@
+meta {
+  name: Get Tokens
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{base_url}}/tokens
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+tests {
+  test("Status is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("Response contains tokens array", function() {
+    expect(res.body).to.have.property('tokens');
+    expect(res.body.tokens).to.be.an('array');
+  });
+}

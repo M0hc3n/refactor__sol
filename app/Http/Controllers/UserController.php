@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\ChangeUserPassword;
+use App\Actions\DeleteUserAccount;
+use App\Actions\UpdateUserProfile;
 use App\Http\Requests\ChangePasswordRequest;
 use App\Http\Requests\DeleteUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Http\Resources\UserResource;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\ValidationException;
 class UserController extends Controller
 {
     public function show(Request $request)
@@ -17,8 +18,7 @@ class UserController extends Controller
     }
     public function update(UpdateUserRequest $request)
     {
-        $user = $request->user();
-        $user->update($request->only(['name', 'email']));
+        $user = (new UpdateUserProfile())->execute($request->user(), $request->validated());
 
         return response()->json([
             'message' => 'Profile updated successfully',
@@ -27,20 +27,7 @@ class UserController extends Controller
     }
     public function changePassword(ChangePasswordRequest $request)
     {
-        $user = $request->user();
-
-        if (!Hash::check($request->current_password, $user->password)) {
-            throw ValidationException::withMessages([
-                'current_password' => ['The provided password does not match your current password.'],
-            ]);
-        }
-
-        $user->update([
-            'password' => Hash::make($request->password),
-        ]);
-
-        // Optionally revoke all other tokens except current one
-        $user->tokens()->where('id', '!=', $request->user()->currentAccessToken()->id)->delete();
+        (new ChangeUserPassword())->execute($request->user(), $request->current_password, $request->password);
 
         return response()->json([
             'message' => 'Password changed successfully',
@@ -48,19 +35,7 @@ class UserController extends Controller
     }
     public function destroy(DeleteUserRequest $request)
     {
-        $user = $request->user();
-
-        if (!Hash::check($request->password, $user->password)) {
-            throw ValidationException::withMessages([
-                'password' => ['The provided password is incorrect.'],
-            ]);
-        }
-
-        // Revoke all tokens
-        $user->tokens()->delete();
-
-        // Delete user
-        $user->delete();
+        (new DeleteUserAccount())->execute($request->user(), $request->password);
 
         return response()->json([
             'message' => 'Account deleted successfully',

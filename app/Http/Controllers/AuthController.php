@@ -2,24 +2,20 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\LoginUser;
+use App\Actions\RegisterUser;
+use App\Actions\RevokeUserToken;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
 use App\Http\Resources\UserResource;
 use Illuminate\Http\Request;
-use App\Models\User;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
     public function register(RegisterRequest $request)
     {
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
-
+        $user = (new RegisterUser())->execute($request->validated());
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
@@ -29,11 +25,12 @@ class AuthController extends Controller
             'token_type' => 'Bearer',
         ], 201);
     }
+
     public function login(LoginRequest $request)
     {
-        $user = User::where('email', $request->email)->first();
+        $user = (new LoginUser())->execute($request->validated());
 
-        if (!$user || !Hash::check($request->password, $user->password)) {
+        if (!$user) {
             throw ValidationException::withMessages([
                 'email' => ['The provided credentials are incorrect.'],
             ]);
@@ -48,6 +45,7 @@ class AuthController extends Controller
             'token_type' => 'Bearer',
         ]);
     }
+
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();
@@ -56,6 +54,7 @@ class AuthController extends Controller
             'message' => 'Logged out successfully',
         ]);
     }
+
     public function logoutAll(Request $request)
     {
         $request->user()->tokens()->delete();
@@ -64,6 +63,7 @@ class AuthController extends Controller
             'message' => 'Logged out from all devices successfully',
         ]);
     }
+
     public function tokens(Request $request)
     {
         return response()->json([
@@ -77,17 +77,17 @@ class AuthController extends Controller
             }),
         ]);
     }
+
+
     public function revokeToken(Request $request, $tokenId)
     {
-        $token = $request->user()->tokens()->find($tokenId);
+        $result = (new RevokeUserToken())->execute($request->user(), $tokenId);
 
-        if (!$token) {
+        if (!$result) {
             return response()->json([
                 'message' => 'Token not found',
             ], 404);
         }
-
-        $token->delete();
 
         return response()->json([
             'message' => 'Token revoked successfully',

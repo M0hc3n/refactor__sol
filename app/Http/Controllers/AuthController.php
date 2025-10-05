@@ -11,10 +11,13 @@ use App\Http\Resources\UserResource;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 
+// Always try to keep the controllers as slim as possible + add the return type in each method
 class AuthController extends Controller
 {
     public function register(RegisterRequest $request)
     {
+        // Encapsulate the token creation in the RegisterUser Action , you can return a something like this from the Action:
+        // [$user,token] = (new RegisterUser())->execute($request->validated());
         $user = (new RegisterUser())->execute($request->validated());
         $token = $user->createToken('auth_token')->plainTextToken;
 
@@ -28,6 +31,7 @@ class AuthController extends Controller
 
     public function login(LoginRequest $request)
     {
+        // Same thing here encapsulate the error throw and token creation in the LoginUser Action
         $user = (new LoginUser())->execute($request->validated());
 
         if (!$user) {
@@ -66,6 +70,7 @@ class AuthController extends Controller
 
     public function tokens(Request $request)
     {
+        // Eventhough this is slim but using an action is better in the long run ,you might need to get all tokens of a users elsewhere
         return response()->json([
             'tokens' => $request->user()->tokens->map(function ($token) {
                 return [
@@ -81,6 +86,7 @@ class AuthController extends Controller
 
     public function revokeToken(Request $request, $tokenId)
     {
+        // Same thing here encapsulate the error in RevokeUserToken Action
         $result = (new RevokeUserToken())->execute($request->user(), $tokenId);
 
         if (!$result) {

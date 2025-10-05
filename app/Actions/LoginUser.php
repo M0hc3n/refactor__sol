@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Hash;
 
 class LoginUser
 {
+    // It would be nice specifying the return type of the execute function
     public function execute(array $data)
     {
         $user = User::where('email', $data['email'])->first();

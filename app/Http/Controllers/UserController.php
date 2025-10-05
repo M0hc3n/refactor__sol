@@ -16,6 +16,7 @@ class UserController extends Controller
     {
         return new UserResource($request->user());
     }
+    // Great one
     public function update(UpdateUserRequest $request)
     {
         $user = (new UpdateUserProfile())->execute($request->user(), $request->validated());
@@ -25,6 +26,8 @@ class UserController extends Controller
             'user' => new UserResource($user),
         ]);
     }
+
+    // Great one
     public function changePassword(ChangePasswordRequest $request)
     {
         (new ChangeUserPassword())->execute($request->user(), $request->current_password, $request->password);
@@ -33,6 +36,8 @@ class UserController extends Controller
             'message' => 'Password changed successfully',
         ]);
     }
+
+    // Great one
     public function destroy(DeleteUserRequest $request)
     {
         (new DeleteUserAccount())->execute($request->user(), $request->password);

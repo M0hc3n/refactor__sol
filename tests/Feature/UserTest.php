@@ -5,6 +5,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
+// your feature test should be called 'ControllerNameTest' in your case UserControllerTest
 class UserTest extends TestCase
 {
     use RefreshDatabase;

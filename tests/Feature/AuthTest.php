@@ -5,6 +5,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
+// your feature test should be called 'ControllerNameTest' in your case AuthControllerTest
 class AuthTest extends TestCase
 {
     use RefreshDatabase;
@@ -100,4 +101,6 @@ class AuthTest extends TestCase
         $response->assertStatus(200)
             ->assertJson(['message' => 'Logged out from all devices successfully']);
     }
+
+    // there is missing tests for the remaining methods (tokens,revokeToken)
 }

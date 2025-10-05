@@ -7,6 +7,7 @@ use Illuminate\Validation\ValidationException;
 
 class ChangeUserPassword
 {
+    // It would be nice specifying the return type of the execute function
     public function execute(User $user, string $currentPassword, string $newPassword)
     {
         if (!Hash::check($currentPassword, $user->password)) {

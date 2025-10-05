@@ -7,6 +7,7 @@ use Illuminate\Validation\ValidationException;
 
 class DeleteUserAccount
 {
+    // It would be nice specifying the return type of the execute function
     public function execute(User $user, string $password)
     {
         if (!Hash::check($password, $user->password)) {
